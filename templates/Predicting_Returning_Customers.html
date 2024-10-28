@@ -1,0 +1,186 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Predicting Returning Customers{% endblock %}
+
+{% block custom_css %}
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    Dự đoán khách hàng quay lại
+                </h1>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Metrics Overview -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                <!-- Tổng số khách hàng -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Tổng số khách hàng
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            12,345
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">↑ 2.5%</span>
+                            <span class="text-gray-500">so với tháng trước</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tỷ lệ quay lại dự kiến -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Tỷ lệ quay lại dự kiến
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            68.7%
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">↑ 4.2%</span>
+                            <span class="text-gray-500">so với dự báo trước</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khách hàng có nguy cơ rời đi -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Khách hàng có nguy cơ rời đi
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-red-600">
+                            234
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <span class="text-red-600 font-semibold">↑ 1.8%</span>
+                            <span class="text-gray-500">cần can thiệp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Độ chính xác dự đoán -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Độ chính xác dự đoán
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            89.5%
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">↑ 0.5%</span>
+                            <span class="text-gray-500">cải thiện mô hình</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Bảng Khách hàng cần quan tâm -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+                            Khách hàng cần quan tâm
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Khách hàng
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Xác suất rời đi
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Giá trị KH
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Hành động
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            Nguyễn Văn A
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                                            87%
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            12.5M VNĐ
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs">
+                                                Xem chi tiết
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- More rows... -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ dự đoán -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+                            Xu hướng dự đoán theo thời gian
+                        </h3>
+                        <div class="h-80">
+                            <!-- Placeholder for chart -->
+                            <div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                                [Area for Chart.js/Recharts Implementation]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phân tích chi tiết -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+                        Yếu tố ảnh hưởng đến khả năng quay lại
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-500">Thời gian từ lần mua cuối</h4>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <span class="ml-2 text-sm text-gray-700">75%</span>
+                            </div>
+                        </div>
+                        <!-- More factors... -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+{% endblock %}

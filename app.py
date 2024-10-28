@@ -66,6 +66,10 @@ def chart_customers():
     return render_template('Chart_segment_customers.html', 
                            rfm_data=rfm_data.to_dict(orient='records'),
                            cluster_summary=cluster_summary.to_dict(orient='records'))
+    
+@app.route('/function/Predicting_Returning_Customers')
+def Predicting_Returning_Customers():
+    return render_template('Predicting_Returning_Customers.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
