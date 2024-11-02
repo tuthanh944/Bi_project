@@ -1,12 +1,11 @@
-
 {% extends "layout.html" %}
 
 {% block title %}Predicting Returning Customers{% endblock %}
 
 {% block custom_css %}
-
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 {% endblock %}
+
 {% block content %}
 <body class="bg-gray-50">
     <div class="min-h-screen">
@@ -14,10 +13,21 @@
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold text-gray-900">
-                    Dự đoán khách hàng quay lại
+                    Dự đoán xác xuất khách hàng quay lại hay rời đi
                 </h1>
+                <h3 class="text-3xl font-bold text-gray-500">
+                    {{last_quarter}}
+                </h3>
             </div>
         </header>
+        <!-- Button to retrain the model -->
+        <div class="flex justify-center my-6">
+            <form action="/function/retrain_model" method="POST">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Cập nhật và huấn luyện lại mô hình
+                </button>
+            </form>
+        </div>
 
         <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <!-- Metrics Overview -->
@@ -25,17 +35,15 @@
                 <!-- Tổng số khách hàng -->
                 <div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="px-4 py-5 sm:p-6">
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Tổng số khách hàng
-                        </dt>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Tổng số khách hàng</dt>
                         <dd class="mt-1 text-3xl font-semibold text-gray-900">
-                            12,345
+                            {{ total_customers_current_quarter }}
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <span class="text-green-600 font-semibold">↑ 2.5%</span>
-                            <span class="text-gray-500">so với tháng trước</span>
+                            <span class="text-green-600 font-semibold"></span>
+                            <span class="text-gray-500"></span>
                         </div>
                     </div>
                 </div>
@@ -43,17 +51,15 @@
                 <!-- Tỷ lệ quay lại dự kiến -->
                 <div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="px-4 py-5 sm:p-6">
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Tỷ lệ quay lại dự kiến
-                        </dt>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Tỷ lệ rời đi dự kiến</dt>
                         <dd class="mt-1 text-3xl font-semibold text-gray-900">
-                            68.7%
+                            {{ predicted_churn_rate }}%
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <span class="text-green-600 font-semibold">↑ 4.2%</span>
-                            <span class="text-gray-500">so với dự báo trước</span>
+                            <span class="text-green-600 font-semibold"></span>
+                            <span class="text-gray-500"></span>
                         </div>
                     </div>
                 </div>
@@ -61,17 +67,15 @@
                 <!-- Khách hàng có nguy cơ rời đi -->
                 <div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="px-4 py-5 sm:p-6">
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Khách hàng có nguy cơ rời đi
-                        </dt>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Khách hàng có nguy cơ rời đi</dt>
                         <dd class="mt-1 text-3xl font-semibold text-red-600">
-                            234
+                            {{ churn_customers }}
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <span class="text-red-600 font-semibold">↑ 1.8%</span>
-                            <span class="text-gray-500">cần can thiệp</span>
+                            <span class="text-red-600 font-semibold"></span>
+                            <span class="text-gray-500"></span>
                         </div>
                     </div>
                 </div>
@@ -79,107 +83,172 @@
                 <!-- Độ chính xác dự đoán -->
                 <div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="px-4 py-5 sm:p-6">
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Độ chính xác dự đoán
-                        </dt>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Độ chính xác (Quý Trước)</dt>
                         <dd class="mt-1 text-3xl font-semibold text-gray-900">
-                            89.5%
+                            {{ prediction_accuracy }}%
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-4 sm:px-6">
                         <div class="text-sm">
-                            <span class="text-green-600 font-semibold">↑ 0.5%</span>
-                            <span class="text-gray-500">cải thiện mô hình</span>
+                            <span class="text-green-600 font-semibold"></span>
+                            <span class="text-gray-500"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Bảng Khách hàng cần quan tâm -->
-                <div class="bg-white shadow rounded-lg">
-                    <div class="px-4 py-5 sm:p-6">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
-                            Khách hàng cần quan tâm
-                        </h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Khách hàng
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Xác suất rời đi
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Giá trị KH
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Hành động
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Nguyễn Văn A
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-                                            87%
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            12.5M VNĐ
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs">
-                                                Xem chi tiết
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- More rows... -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <!-- Biểu đồ nhân khẩu học -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Biểu đồ Giới tính -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Tỷ lệ quay lại theo giới tính</h3>
+                    <canvas id="genderChart" width="400" height="200"></canvas>
                 </div>
-
-                <!-- Biểu đồ dự đoán -->
-                <div class="bg-white shadow rounded-lg">
-                    <div class="px-4 py-5 sm:p-6">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
-                            Xu hướng dự đoán theo thời gian
-                        </h3>
-                        <div class="h-80">
-                            <!-- Placeholder for chart -->
-                            <div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                                [Area for Chart.js/Recharts Implementation]
-                            </div>
-                        </div>
-                    </div>
+                <!-- Biểu đồ Độ tuổi -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Tỷ lệ quay lại theo độ tuổi</h3>
+                    <canvas id="ageChart" width="400" height="200"></canvas>
                 </div>
+                <!-- Biểu đồ Vùng địa lý -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Tỷ lệ quay lại theo vùng địa lý</h3>
+                    <canvas id="regionChart" width="400" height="200"></canvas>
+                </div>
+             
             </div>
+<!-- Bảng khách hàng có tỉ lệ rời đi trên 70% -->
+<div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Khách hàng có tỉ lệ rời đi trên 80%</h3>
+    <div class="overflow-y-auto max-h-80">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên khách hàng</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỉ lệ rời đi (%)</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for customer in high_churn_customers %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer['full_name'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer['email'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">{{ customer['churn_probability'] }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-            <!-- Phân tích chi tiết -->
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
-                        Yếu tố ảnh hưởng đến khả năng quay lại
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="border rounded-lg p-4">
-                            <h4 class="text-sm font-medium text-gray-500">Thời gian từ lần mua cuối</h4>
-                            <div class="mt-2 flex items-center">
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
-                                </div>
-                                <span class="ml-2 text-sm text-gray-700">75%</span>
-                            </div>
-                        </div>
-                        <!-- More factors... -->
-                    </div>
-                </div>
-            </div>
+<!-- Bảng khách hàng có tỉ lệ rời đi dưới 30% -->
+<div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Khách hàng có tỉ lệ rời đi dưới 20%</h3>
+    <div class="overflow-y-auto max-h-80"> 
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên khách hàng</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỉ lệ rời đi (%)</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for customer in low_churn_customers %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer['full_name'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ customer['email'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">{{ customer['churn_probability'] }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Thêm các biểu đồ nhân khẩu học với Chart.js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                // Biểu đồ Giới tính
+                const genderData = {{ gender_distribution|tojson }};
+                const genderLabels = Object.keys(genderData);
+                const genderValues = Object.values(genderData);
+
+                new Chart(document.getElementById('genderChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: genderLabels,
+                        datasets: [{
+                            label: 'Tỷ lệ quay lại (%)',
+                            data: genderValues,
+                            backgroundColor: '#36A2EB'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, max: 100 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ quay lại theo giới tính'
+                        }
+                    }
+                });
+
+                // Biểu đồ Độ tuổi
+                const ageData = {{ age_distribution|tojson }};
+                const ageLabels = Object.keys(ageData);
+                const ageValues = Object.values(ageData);
+
+                new Chart(document.getElementById('ageChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ageLabels,
+                        datasets: [{
+                            label: 'Tỷ lệ quay lại (%)',
+                            data: ageValues,
+                            backgroundColor: '#FF6384'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, max: 100 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ quay lại theo độ tuổi'
+                        }
+                    }
+                });
+
+                // Biểu đồ Vùng địa lý
+                const regionData = {{ region_distribution|tojson }};
+                const regionLabels = Object.keys(regionData);
+                const regionValues = Object.values(regionData);
+
+                new Chart(document.getElementById('regionChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: regionLabels,
+                        datasets: [{
+                            label: 'Tỷ lệ quay lại (%)',
+                            data: regionValues,
+                            backgroundColor: '#4BC0C0'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, max: 100 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ quay lại theo vùng địa lý'
+                        }
+                    }
+                });
+            </script>
         </main>
     </div>
 </body>
