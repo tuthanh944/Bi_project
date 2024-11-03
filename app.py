@@ -5,7 +5,8 @@ from math import ceil
 from cluster import calculate_rfm
 from data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 import pandas as pd
-import joblib  
+import joblib
+import os
 
 
 app = Flask(__name__)
@@ -60,17 +61,34 @@ def list_customers():
 # Route hiển thị biểu đồ phân khúc khách hàng
 @app.route('/function/chart_of_customers')
 def chart_customers():
-    # Fetch data from MongoDB
-    sales_data_cursor = sales_collection.find({})
-    sales_data = pd.DataFrame(list(sales_data_cursor))
+    # Đường dẫn tới các file đã lưu
+    rfm_file_path = 'rfm_data.csv'
+    cluster_summary_file_path = 'cluster_summary.csv'
+    kmeans_model_path = 'kmeans_model.joblib'
 
-    # Pass sales data to calculate_rfm
-    rfm_data, cluster_summary = calculate_rfm(sales_data)
+    # Kiểm tra nếu các file đã tồn tại
+    if os.path.exists(rfm_file_path) and os.path.exists(cluster_summary_file_path) and os.path.exists(kmeans_model_path):
+        # Tải dữ liệu RFM và cluster_summary từ file CSV
+        rfm_data = pd.read_csv(rfm_file_path)
+        cluster_summary = pd.read_csv(cluster_summary_file_path)
+    else:
+        # Nếu file chưa tồn tại, lấy dữ liệu từ MongoDB và tính toán RFM
+        sales_data_cursor = sales_collection.find({})
+        sales_data = pd.DataFrame(list(sales_data_cursor))
+        
+        # Thực hiện tính toán RFM và phân cụm
+        rfm_data, cluster_summary = calculate_rfm(sales_data)
+        
+        # Lưu kết quả vào file
+        rfm_data.to_csv(rfm_file_path, index=False)
+        cluster_summary.to_csv(cluster_summary_file_path, index=False)
+        joblib.dump(kmeans, kmeans_model_path)
 
+    # Chuyển đổi dữ liệu thành định dạng dictionary để truyền sang template
     return render_template('Chart_segment_customers.html', 
                            rfm_data=rfm_data.to_dict(orient='records'),
                            cluster_summary=cluster_summary.to_dict(orient='records'))
-    
+
 @app.route('/function/Predicting_Returning_Customers')
 def Predicting_Returning_Customers():
     loaded_model = joblib.load('customer_retention_model.joblib')
