@@ -114,8 +114,20 @@
                     <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Tỷ lệ quay lại theo vùng địa lý</h3>
                     <canvas id="regionChart" width="400" height="200"></canvas>
                 </div>
-             
             </div>
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Top 3 đặc trưng quan trọng nhất</h3>
+            <div class="space-y-4">
+                {% for feature, importance in top_features.items() %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">{{ feature }}: {{ importance }}%</p>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-blue-600 h-4 rounded-full" style="width: {{ importance }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 <!-- Bảng khách hàng có tỉ lệ rời đi trên 70% -->
 <div class="bg-white shadow rounded-lg p-6 mb-8">
     <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Khách hàng có tỉ lệ rời đi trên 80%</h3>

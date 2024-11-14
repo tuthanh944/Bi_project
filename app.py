@@ -92,18 +92,23 @@ def chart_customers():
 @app.route('/function/Predicting_Returning_Customers')
 def Predicting_Returning_Customers():
     loaded_model = joblib.load('customer_retention_model.joblib')
-    print("Loaded model successfully.")
+    feature_importance_dict = joblib.load('feature_importance.joblib')
+    print("Loaded model and feature importance successfully.")
+
     customer_data, label_encoders = prepare_data(sales_collection)
     train_data, test_data = split_train_test(customer_data)
     evaluation_results = evaluate_model(loaded_model, train_data, test_data, label_encoders)
     
+    # Rounding values
     evaluation_results["predicted_churn_rate"] = round(evaluation_results["predicted_churn_rate"], 2)
     evaluation_results["prediction_accuracy"] = round(evaluation_results["prediction_accuracy"], 2)
-    evaluation_results["total_customers_current_quarter"] = round(evaluation_results["total_customers_current_quarter"],2)
-    evaluation_results["total_customers_previous_quarter"] = round(evaluation_results["total_customers_previous_quarter"],2)
-    
+    evaluation_results["total_customers_current_quarter"] = round(evaluation_results["total_customers_current_quarter"], 2)
+    evaluation_results["total_customers_previous_quarter"] = round(evaluation_results["total_customers_previous_quarter"], 2)
+
     high_churn_customers = [cust for cust in evaluation_results["churn_details"] if cust["churn_probability"] > 80]
     low_churn_customers = [cust for cust in evaluation_results["churn_details"] if cust["churn_probability"] < 20]
+    
+    top_features = dict(sorted(feature_importance_dict.items(), key=lambda x: x[1], reverse=True)[:3])
 
     return render_template(
         'Predicting_Returning_Customers.html',
@@ -118,8 +123,8 @@ def Predicting_Returning_Customers():
         gender_distribution=evaluation_results["demographic_data"]["gender_distribution"],
         age_distribution=evaluation_results["demographic_data"]["age_distribution"],
         region_distribution=evaluation_results["demographic_data"]["region_distribution"],
-        last_quarter=evaluation_results['last_quarter']
-        
+        last_quarter=evaluation_results['last_quarter'],
+        top_features=top_features
     )
 @app.route('/function/retrain_model', methods=['POST'])
 def retrain_model():

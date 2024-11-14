@@ -51,9 +51,15 @@ def train_model(train_data):
 
     model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
-
+    
+    feature_importances = model.feature_importances_
+    feature_names = X_train.columns
+    feature_importance_dict = dict(zip(feature_names, feature_importances * 100))
+    
     joblib.dump(model, 'customer_retention_model.joblib')
-    print("Model saved successfully as 'customer_retention_model.joblib'.")
+    joblib.dump(feature_importance_dict, 'feature_importance.joblib')
+    print("Model and feature importance saved successfully.")
+    return model
 
     return model
 
@@ -111,7 +117,7 @@ def evaluate_model(model, train_data, test_data, label_encoders):
         }
     }
 
-# Sử dụng hàm
+# # Sử dụng hàm
 # client = MongoClient("mongodb://localhost:27017/")
 # db = client['my_database']
 # collection = db['sales_06_FY2020-21']
@@ -123,14 +129,3 @@ def evaluate_model(model, train_data, test_data, label_encoders):
 # # Huấn luyện mô hình và lưu lại
 # model = train_model(train_data)
 
-# # Đánh giá mô hình với tập kiểm thử
-# evaluation_results = evaluate_model(model, train_data, test_data, label_encoders)
-# print(evaluation_results)
-
-# # Tải lại mô hình đã lưu và sử dụng để dự đoán
-# loaded_model = joblib.load('customer_retention_model.joblib')
-# print("Loaded model successfully.")
-
-# # Đánh giá lại với mô hình đã tải (tùy chọn)
-# evaluation_results_loaded = evaluate_model(loaded_model, test_data)
-# print(evaluation_results_loaded)
