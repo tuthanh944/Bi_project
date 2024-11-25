@@ -3,12 +3,9 @@ from flask import redirect, url_for
 from pymongo import MongoClient
 from math import ceil
 from kmeans.cluster import calculate_rfm
-<<<<<<< HEAD
 from data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 from RNN.predict_no_of_customer import train_rnn_model,evaluate_and_forecast_rnn,prepare_data_RNN
-=======
 from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
->>>>>>> 2b93a17795207abd4f5c655ce33a8c9dbc6434a0
 import pandas as pd
 import joblib
 from tensorflow.keras.models import load_model
