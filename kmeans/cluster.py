@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-import joblib 
 
 def calculate_rfm(sales_data):
     # Convert 'order_date' field to datetime if necessary

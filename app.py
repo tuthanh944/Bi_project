@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from flask import redirect, url_for
 from pymongo import MongoClient
 from math import ceil
-from cluster import calculate_rfm
+from kmeans.cluster import calculate_rfm
 from data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 import pandas as pd
 import joblib
@@ -24,12 +24,26 @@ def index():
 # Route hiển thị danh sách khách hàng với bộ lọc phân khúc
 @app.route('/function/segmentation_of_customers', methods=['GET', 'POST'])
 def list_customers():
-    # Fetch data from MongoDB
-    sales_data_cursor = sales_collection.find({})
-    sales_data = pd.DataFrame(list(sales_data_cursor))
+    # Đường dẫn tới các file đã lưu
+    rfm_file_path = 'kmeans/data/rfm_data.csv'
+    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
 
-    # Pass sales data to calculate_rfm
-    rfm_data, cluster_summary = calculate_rfm(sales_data)
+    # Kiểm tra nếu các file đã tồn tại
+    if os.path.exists(rfm_file_path) and os.path.exists(cluster_summary_file_path):
+        # Tải dữ liệu RFM và cluster_summary từ file CSV
+        rfm_data = pd.read_csv(rfm_file_path)
+        cluster_summary = pd.read_csv(cluster_summary_file_path)
+    else:
+        # Nếu file chưa tồn tại, lấy dữ liệu từ MongoDB và tính toán RFM
+        sales_data_cursor = sales_collection.find({})
+        sales_data = pd.DataFrame(list(sales_data_cursor))
+        
+        # Thực hiện tính toán RFM và phân cụm
+        rfm_data, cluster_summary = calculate_rfm(sales_data)
+        
+        # Lưu kết quả vào file
+        rfm_data.to_csv(rfm_file_path, index=False)
+        cluster_summary.to_csv(cluster_summary_file_path, index=False)
 
     selected_cluster = request.args.get('cluster', None)
 
@@ -62,12 +76,11 @@ def list_customers():
 @app.route('/function/chart_of_customers')
 def chart_customers():
     # Đường dẫn tới các file đã lưu
-    rfm_file_path = 'rfm_data.csv'
-    cluster_summary_file_path = 'cluster_summary.csv'
-    kmeans_model_path = 'kmeans_model.joblib'
+    rfm_file_path = 'kmeans/data/rfm_data.csv'
+    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
 
     # Kiểm tra nếu các file đã tồn tại
-    if os.path.exists(rfm_file_path) and os.path.exists(cluster_summary_file_path) and os.path.exists(kmeans_model_path):
+    if os.path.exists(rfm_file_path) and os.path.exists(cluster_summary_file_path):
         # Tải dữ liệu RFM và cluster_summary từ file CSV
         rfm_data = pd.read_csv(rfm_file_path)
         cluster_summary = pd.read_csv(cluster_summary_file_path)
@@ -82,7 +95,6 @@ def chart_customers():
         # Lưu kết quả vào file
         rfm_data.to_csv(rfm_file_path, index=False)
         cluster_summary.to_csv(cluster_summary_file_path, index=False)
-        joblib.dump(kmeans, kmeans_model_path)
 
     # Chuyển đổi dữ liệu thành định dạng dictionary để truyền sang template
     return render_template('Chart_segment_customers.html', 
