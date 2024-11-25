@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block title %}Customer Forecast Analysis{% endblock %}
+
+{% block custom_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+{% endblock %}
+{% block content %}
+    <canvas id="forecastChart" width="800" height="400"></canvas>
+    <script>
+        const data_actual_predicted = {{ comparison_data|tojson }};
+        const data_forecasted = {{ forecast_data|tojson }};
+
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+
+        // Lấy dữ liệu từ JSON
+        const labels = [
+            ...data_actual_predicted.map(item => item.date),
+            ...data_forecasted.map(item => item.date)
+        ];
+    
+        const actualData = [
+            ...data_actual_predicted.map(item => item.actual),
+            ...Array(data_forecasted.length).fill(null)
+        ];
+    
+        const predictedData = [
+            ...data_actual_predicted.map(item => item.predicted),
+            ...Array(data_forecasted.length).fill(null)
+        ];
+    
+        const forecastedData = [
+            ...Array(data_actual_predicted.length).fill(null),
+            ...data_forecasted.map(item => item.forecasted_unique_customers)
+        ];
+    
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Actual Customers',
+                        data: actualData,
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)'
+                    },
+                    {
+                        label: 'Predicted Customers',
+                        data: predictedData,
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                    },
+                    {
+                        label: 'Forecasted Customers',
+                        data: forecastedData,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 255, 0, 0.1)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Customer Forecast Analysis'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of Customers'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

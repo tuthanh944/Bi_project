@@ -61,8 +61,6 @@ def train_model(train_data):
     print("Model and feature importance saved successfully.")
     return model
 
-    return model
-
 def evaluate_model(model, train_data, test_data, label_encoders):
 
     X_test = test_data.drop(columns=['returned', 'unique_order_dates', 'last_order_date', 'order_quarter', 'full_name', 'email'])
