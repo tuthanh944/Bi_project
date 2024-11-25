@@ -3,7 +3,7 @@ from flask import redirect, url_for
 from pymongo import MongoClient
 from math import ceil
 from kmeans.cluster import calculate_rfm
-from data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
+from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 import pandas as pd
 import joblib
 import os
@@ -95,8 +95,8 @@ def chart_customers():
 
 @app.route('/function/Predicting_Returning_Customers')
 def Predicting_Returning_Customers():
-    loaded_model = joblib.load('customer_retention_model.joblib')
-    feature_importance_dict = joblib.load('feature_importance.joblib')
+    loaded_model = joblib.load('randomforest/model/customer_retention_model.joblib')
+    feature_importance_dict = joblib.load('randomforest/model/feature_importance.joblib')
     print("Loaded model and feature importance successfully.")
 
     customer_data, label_encoders = prepare_data(sales_collection)
