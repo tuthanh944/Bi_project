@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from math import ceil
 from kmeans.cluster import calculate_rfm
 from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
-from RNN.predict_no_of_customer import train_rnn_model,evaluate_and_forecast_rnn,prepare_data_RNN
+from rnn.predict_no_of_customer import train_rnn_model,evaluate_and_forecast_rnn,prepare_data_RNN
 from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 import pandas as pd
 import joblib
@@ -141,11 +141,12 @@ def retrain_model():
     model = train_model(train_data)
 
     return redirect(url_for('Predicting_Returning_Customers'))
+
 @app.route('/function/no_of_customer', methods=['GET','POST'])
 def load_predict():
     sales_data_cursor = sales_collection.find({})
     sales_data = pd.DataFrame(list(sales_data_cursor))
-    model = load_model('rnn_model.h5')
+    model = load_model('rnn/model/rnn_model.h5')
     X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(sales_data)
     comparison_df, forecast_df = evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers)
     comparison_dict = comparison_df.to_dict(orient='records')  
@@ -155,5 +156,6 @@ def load_predict():
         comparison_data=comparison_dict,
         forecast_data=forecast_dict
 )
+
 if __name__ == '__main__':
     app.run(debug=True)

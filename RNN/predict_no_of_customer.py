@@ -37,7 +37,7 @@ def train_rnn_model(X_train, y_train, X_test, y_test, sequence_length=28, epochs
     model.compile(optimizer='adam', loss='mean_squared_error')
 
     model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(X_test, y_test), verbose=1)
-    model.save('rnn_model.h5') 
+    model.save('model/rnn_model.h5') 
     return model
 def evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers, sequence_length=28, forecast_days=7):
     y_pred_scaled = model.predict(X_test)
