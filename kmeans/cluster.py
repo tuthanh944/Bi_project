@@ -17,7 +17,8 @@ def calculate_rfm(sales_data):
     }).reset_index()
 
     rfm.columns = ['User Name', 'Recency', 'Frequency', 'Monetary']
-
+    
+    rfm['Recency'] = -rfm['Recency']
     # Standardize the RFM values
     scaler = StandardScaler()
     rfm_scaled = scaler.fit_transform(rfm[['Recency', 'Frequency', 'Monetary']])
@@ -26,6 +27,8 @@ def calculate_rfm(sales_data):
     kmeans = KMeans(n_clusters=3, random_state=42)
     rfm['Cluster'] = kmeans.fit_predict(rfm_scaled)
 
+    rfm['Recency'] = -rfm['Recency']
+    
     # Summarize the clusters
     cluster_summary = rfm.groupby('Cluster').agg({
         'Recency': 'mean',

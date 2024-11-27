@@ -133,6 +133,7 @@ def Predicting_Returning_Customers():
         last_quarter=evaluation_results['last_quarter'],
         top_features=top_features
     )
+    
 @app.route('/function/retrain_model', methods=['POST'])
 def retrain_model():
     customer_data, label_encoders = prepare_data(sales_collection)
