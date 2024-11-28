@@ -13,6 +13,14 @@
 {% endblock %}
 
 {% block content %}
+   <!-- Button to retrain the model -->
+  <div class="flex justify-center my-6">
+    <form action="/function/retrain_model_kmeans" method="POST">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Cập nhật và huấn luyện lại mô hình
+        </button>
+    </form>
+  </div>
   <h1 class="mt-5">Phân loại và phân khúc khách hàng</h1>
     <!-- Filter Dropdown for Cluster -->
     <form method="GET" action="/function/segmentation_of_customers">
