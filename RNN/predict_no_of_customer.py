@@ -4,6 +4,8 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import SimpleRNN, Dense, Dropout
 import matplotlib.pyplot as plt
+import joblib  
+
 
 def prepare_data_RNN(data, sequence_length=28, test_size=28):
     data['order_date'] = pd.to_datetime(data['order_date'], errors='coerce')
@@ -38,7 +40,8 @@ def train_rnn_model(X_train, y_train, X_test, y_test, sequence_length=28, epochs
 
     model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(X_test, y_test), verbose=1)
     # model.save('model/rnn_model.h5') 
-    model.save('model/rnn_model.keras')
+    joblib.dump(model, 'RNN/model/rnn_model.joblib')
+
 
     return model
 def evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers, sequence_length=28, forecast_days=7):

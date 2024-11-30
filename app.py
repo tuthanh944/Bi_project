@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from math import ceil
 from kmeans.cluster import calculate_rfm
 from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
-from rnn.predict_no_of_customer import train_rnn_model,evaluate_and_forecast_rnn,prepare_data_RNN
+from RNN.predict_no_of_customer import train_rnn_model,evaluate_and_forecast_rnn,prepare_data_RNN
 from randomforest.data_customer_return import prepare_data, split_train_test, train_model, evaluate_model
 import pandas as pd
 import joblib
@@ -193,7 +193,7 @@ def retrain_model_rnn():
 def load_predict():
     sales_data_cursor = sales_collection.find({})
     sales_data = pd.DataFrame(list(sales_data_cursor))
-    model = load_model('rnn/model/rnn_model.keras')
+    model = joblib.load('rnn/model/rnn_model.joblib')
     X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(sales_data)
     comparison_df, forecast_df = evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers)
     comparison_dict = comparison_df.to_dict(orient='records')  
