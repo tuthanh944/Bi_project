@@ -96,7 +96,60 @@
                     </div>
                 </div>
             </div>
-
+            <div class="bg-white shadow rounded-lg p-6 mb-8">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Tìm kiếm khách hàng</h3>
+                <div>
+                    <input id="searchInput" 
+                           type="text" 
+                           class="border border-gray-300 rounded-lg p-2 w-full" 
+                           placeholder="Nhập tên khách hàng..." 
+                           onkeyup="searchCustomer()">
+                </div>
+                <div id="searchResults" class="mt-4 space-y-4">
+                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+                </div>
+            </div>
+            
+            <script>
+                async function searchCustomer() {
+                    const query = document.getElementById("searchInput").value;
+            
+                    if (!query) {
+                        document.getElementById("searchResults").innerHTML = "";
+                        return;
+                    }
+            
+                    try {
+                        const response = await fetch("/function/search_customer", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query })
+                        });
+            
+                        const customers = await response.json();
+            
+                        const resultsContainer = document.getElementById("searchResults");
+                        resultsContainer.innerHTML = "";
+            
+                        if (customers.length > 0) {
+                            customers.forEach(customer => {
+                                const customerElement = document.createElement("div");
+                                customerElement.className = "bg-gray-100 p-4 rounded-lg";
+                                customerElement.innerHTML = `
+                                    <p class="font-bold text-gray-800">${customer.full_name}</p>
+                                    <p>Email: ${customer.email}</p>
+                                    <p class="text-sm text-gray-600">Tỉ lệ rời đi: ${customer.churn_probability}%</p>
+                                `;
+                                resultsContainer.appendChild(customerElement);
+                            });
+                        } else {
+                            resultsContainer.innerHTML = "<p class='text-gray-600'>Không tìm thấy khách hàng nào.</p>";
+                        }
+                    } catch (error) {
+                        console.error("Error fetching search results:", error);
+                    }
+                }
+            </script>
             <!-- Biểu đồ nhân khẩu học -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <!-- Biểu đồ Giới tính -->

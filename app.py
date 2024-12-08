@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask import redirect, url_for
 from pymongo import MongoClient
 from math import ceil
@@ -10,6 +10,8 @@ import pandas as pd
 import joblib
 from tensorflow.keras.models import load_model
 import os
+from fuzzywuzzy import fuzz
+
 
 
 app = Flask(__name__)
@@ -94,13 +96,13 @@ def chart_customers():
         rfm_data=rfm_data.to_dict(orient='records'),
         cluster_summary=cluster_summary.to_dict(orient='records')
     )
-
-
+    
+    
+loaded_model = joblib.load('randomforest/model/customer_retention_model.joblib')
+feature_importance_dict = joblib.load('randomforest/model/feature_importance.joblib')
+print("Loaded model and feature importance successfully.")
 @app.route('/function/Predicting_Returning_Customers')
 def Predicting_Returning_Customers():
-    loaded_model = joblib.load('randomforest/model/customer_retention_model.joblib')
-    feature_importance_dict = joblib.load('randomforest/model/feature_importance.joblib')
-    print("Loaded model and feature importance successfully.")
 
     customer_data, label_encoders = prepare_data(sales_collection)
     train_data, test_data = split_train_test(customer_data)
@@ -116,7 +118,11 @@ def Predicting_Returning_Customers():
     low_churn_customers = [cust for cust in evaluation_results["churn_details"] if cust["churn_probability"] < 20]
     
     top_features = dict(sorted(feature_importance_dict.items(), key=lambda x: x[1], reverse=True)[:3])
-
+    
+    churn_details_df = pd.DataFrame(evaluation_results["churn_details"])
+    churn_details_file_path = "randomforest/churn_details.csv"
+    churn_details_df.to_csv(churn_details_file_path, index=False)
+    
     return render_template(
         'Predicting_Returning_Customers.html',
         total_customers_current_quarter=evaluation_results["total_customers_current_quarter"],
@@ -133,7 +139,26 @@ def Predicting_Returning_Customers():
         last_quarter=evaluation_results['last_quarter'],
         top_features=top_features
     )
-    
+@app.route('/function/search_customer', methods=['POST'])
+def search_customer():
+    try:
+        churn_details = pd.read_csv("randomforest/churn_details.csv")
+
+        query = request.json.get("query", "").lower()
+        
+        customers = churn_details.to_dict(orient="records")
+
+        filtered_customers = [
+            customer for customer in customers
+            if fuzz.partial_ratio(query, customer["full_name"].lower()) > 90
+        ]
+        
+        return jsonify(filtered_customers), 200
+
+    except Exception as e:
+        print(f"Error during search: {e}")
+        return jsonify({"error": "An error occurred during search."}), 500
+
 @app.route('/function/retrain_model', methods=['POST'])
 def retrain_model():
     customer_data, label_encoders = prepare_data(sales_collection)
@@ -143,57 +168,11 @@ def retrain_model():
 
     return redirect(url_for('Predicting_Returning_Customers'))
 
-
-@app.route('/function/retrain_model_kmeans', methods=['POST'])
-def retrain_model_kmeans():
-    # Đường dẫn tới các file đã lưu
-    rfm_file_path = 'kmeans/data/rfm_data.csv'
-    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
-
-    sales_data_cursor = sales_collection.find({})
-    sales_data = pd.DataFrame(list(sales_data_cursor))
-
-    # Thực hiện tính toán RFM và phân cụm
-    rfm_data, cluster_summary = calculate_rfm(sales_data)
-
-    # Lưu kết quả vào file
-    rfm_data.to_csv(rfm_file_path, index=False)
-    cluster_summary.to_csv(cluster_summary_file_path, index=False)
-    
-    return redirect(url_for('list_customers'))
-
-
-@app.route('/function/retrain_model_kmeans_1', methods=['POST'])
-def retrain_model_kmeans_1():
-    # Đường dẫn tới các file đã lưu
-    rfm_file_path = 'kmeans/data/rfm_data.csv'
-    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
-
-    sales_data_cursor = sales_collection.find({})
-    sales_data = pd.DataFrame(list(sales_data_cursor))
-
-    # Thực hiện tính toán RFM và phân cụm
-    rfm_data, cluster_summary = calculate_rfm(sales_data)
-
-    # Lưu kết quả vào file
-    rfm_data.to_csv(rfm_file_path, index=False)
-    cluster_summary.to_csv(cluster_summary_file_path, index=False)
-    
-    return redirect(url_for('chart_customers'))
-
-@app.route('/function/retrain_model_rnn', methods=['POST'])
-def retrain_model_rnn():
-    sales_data_cursor = sales_collection.find({})
-    sales_data = pd.DataFrame(list(sales_data_cursor))
-    X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(sales_data)
-    train_rnn_model(X_train, y_train, X_test, y_test)
-    return redirect(url_for('load_predict'))
-
 @app.route('/function/no_of_customer', methods=['GET','POST'])
 def load_predict():
     sales_data_cursor = sales_collection.find({})
     sales_data = pd.DataFrame(list(sales_data_cursor))
-    model = joblib.load('rnn/model/rnn_model.joblib')
+    model = load_model('rnn/model/rnn_model.h5')
     X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(sales_data)
     comparison_df, forecast_df = evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers)
     comparison_dict = comparison_df.to_dict(orient='records')  

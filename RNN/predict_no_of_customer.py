@@ -4,8 +4,6 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import SimpleRNN, Dense, Dropout
 import matplotlib.pyplot as plt
-import joblib  
-
 
 def prepare_data_RNN(data, sequence_length=28, test_size=28):
     data['order_date'] = pd.to_datetime(data['order_date'], errors='coerce')
@@ -39,10 +37,7 @@ def train_rnn_model(X_train, y_train, X_test, y_test, sequence_length=28, epochs
     model.compile(optimizer='adam', loss='mean_squared_error')
 
     model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(X_test, y_test), verbose=1)
-    # model.save('model/rnn_model.h5') 
-    joblib.dump(model, 'RNN/model/rnn_model.joblib')
-
-
+    model.save('model/rnn_model.h5') 
     return model
 def evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_customers, sequence_length=28, forecast_days=7):
     y_pred_scaled = model.predict(X_test)
@@ -78,11 +73,10 @@ def evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_
 
 
 # # Ví dụ sử dụng
-# data_path = 'F:\Bussiness Inteligence\Bi_project\data\sales_06_FY2020-21.csv'
+# data_path = '/Users/nguyentu/Desktop/BI projects/Bi_project/data/sales_06_FY2020-21.csv'
 # data = pd.read_csv(data_path)
-# # model, data_scaled, scaler, daily_customers, X_test, y_test = predict_with_rnn(data)
-# X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(data)
-# train_rnn_model(X_train, y_train, X_test, y_test)
+# model, data_scaled, scaler, daily_customers, X_test, y_test = predict_with_rnn(data)
+
 # # Đánh giá và dự đoán 7 ngày tiếp theo
 # test_results, forecast_results = evaluate_and_forecast(model, X_test, y_test, scaler, data_scaled, daily_customers)
 

@@ -56,8 +56,8 @@ def train_model(train_data):
     feature_names = X_train.columns
     feature_importance_dict = dict(zip(feature_names, feature_importances * 100))
     
-    joblib.dump(model, 'randomforest/model/customer_retention_model.joblib')
-    joblib.dump(feature_importance_dict, 'randomforest/model/feature_importance.joblib')
+    joblib.dump(model, 'model/customer_retention_model.joblib')
+    joblib.dump(feature_importance_dict, 'model/feature_importance.joblib')
     print("Model and feature importance saved successfully.")
     return model
 

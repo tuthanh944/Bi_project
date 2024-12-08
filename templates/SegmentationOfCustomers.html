@@ -10,19 +10,9 @@
   <link rel="stylesheet" href="/static/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css">
   <link rel="stylesheet" href="/static/assets/vendor/remixicon/fonts/remixicon.css">
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-
 {% endblock %}
 
 {% block content %}
-   <!-- Button to retrain the model -->
-  <div class="flex justify-center my-6">
-    <form action="/function/retrain_model_kmeans" method="POST">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Cập nhật và huấn luyện lại mô hình
-    </button>
-    </form>
-  </div>
   <h1 class="mt-5">Phân loại và phân khúc khách hàng</h1>
     <!-- Filter Dropdown for Cluster -->
     <form method="GET" action="/function/segmentation_of_customers">
