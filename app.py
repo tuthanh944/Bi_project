@@ -19,7 +19,7 @@ app = Flask(__name__)
 # MongoDB connection
 client = MongoClient('mongodb://localhost:27017/')
 db = client['my_database']
-sales_collection = db['sales_06_FY2020-21']
+sales_collection = db['Bi']
 
 def get_rfm_and_cluster_data():
     # Đường dẫn tới các file đã lưu
@@ -167,7 +167,41 @@ def retrain_model():
     model = train_model(train_data)
 
     return redirect(url_for('Predicting_Returning_Customers'))
-
+@app.route('/function/retrain_model_kmeans', methods=['POST'])
+def retrain_model_kmeans():
+    # Đường dẫn tới các file đã lưu
+    rfm_file_path = 'kmeans/data/rfm_data.csv'
+    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
+    sales_data_cursor = sales_collection.find({})
+    sales_data = pd.DataFrame(list(sales_data_cursor))
+    # Thực hiện tính toán RFM và phân cụm
+    rfm_data, cluster_summary = calculate_rfm(sales_data)
+    # Lưu kết quả vào file
+    rfm_data.to_csv(rfm_file_path, index=False)
+    cluster_summary.to_csv(cluster_summary_file_path, index=False)
+    
+    return redirect(url_for('list_customers'))
+@app.route('/function/retrain_model_kmeans_1', methods=['POST'])
+def retrain_model_kmeans_1():
+    # Đường dẫn tới các file đã lưu
+    rfm_file_path = 'kmeans/data/rfm_data.csv'
+    cluster_summary_file_path = 'kmeans/data/cluster_summary.csv'
+    sales_data_cursor = sales_collection.find({})
+    sales_data = pd.DataFrame(list(sales_data_cursor))
+    # Thực hiện tính toán RFM và phân cụm
+    rfm_data, cluster_summary = calculate_rfm(sales_data)
+    # Lưu kết quả vào file
+    rfm_data.to_csv(rfm_file_path, index=False)
+    cluster_summary.to_csv(cluster_summary_file_path, index=False)
+    
+    return redirect(url_for('chart_customers'))
+@app.route('/function/retrain_model_rnn', methods=['POST'])
+def retrain_model_rnn():
+    sales_data_cursor = sales_collection.find({})
+    sales_data = pd.DataFrame(list(sales_data_cursor))
+    X_train, X_test, y_train, y_test, scaler, data_scaled, daily_customers=prepare_data_RNN(sales_data)
+    model = train_rnn_model(X_train, y_train, X_test, y_test)
+    return redirect(url_for('load_predict'))
 @app.route('/function/no_of_customer', methods=['GET','POST'])
 def load_predict():
     sales_data_cursor = sales_collection.find({})

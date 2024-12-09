@@ -72,8 +72,10 @@ def evaluate_and_forecast_rnn(model, X_test, y_test, scaler, data_scaled, daily_
     return comparison_df, forecast_df
 
 
+# The commented code block is providing an example usage of the functions defined earlier in the
+# script. Here's a breakdown of what each part does:
 # # Ví dụ sử dụng
-# data_path = '/Users/nguyentu/Desktop/BI projects/Bi_project/data/sales_06_FY2020-21.csv'
+# data_path = ''
 # data = pd.read_csv(data_path)
 # model, data_scaled, scaler, daily_customers, X_test, y_test = predict_with_rnn(data)
 
